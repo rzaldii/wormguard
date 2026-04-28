@@ -1,7 +1,9 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/sensor_provider.dart';
 import '../../models/sensor_model.dart';
+import '../notification/notification_page.dart';
 
 class MonitoringPage extends ConsumerStatefulWidget {
   const MonitoringPage({super.key});
@@ -11,79 +13,148 @@ class MonitoringPage extends ConsumerStatefulWidget {
 }
 
 class _MonitoringPageState extends ConsumerState<MonitoringPage> {
+  static const Color _green = Color(0xFF44824F);
+  static const Color _brown = Color(0xFF8B6B54);
+  static const Color _bgGrey = Color(0xFFF0F0F0);
+
   @override
   Widget build(BuildContext context) {
     final sensorAsync = ref.watch(sensorDataProvider);
-    final historyAsync = ref.watch(historyProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('WormGuard Monitoring'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.refresh(sensorDataProvider),
+      backgroundColor: _bgGrey,
+      body: Column(
+        children: [
+          // ── Top bar ──
+          _buildTopBar(),
+
+          // ── Scrollable body ──
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async => ref.refresh(sensorDataProvider),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                child: sensorAsync.when(
+                  data: (data) => Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      _buildSoilMoistureCard(data),
+                      const SizedBox(height: 16),
+                      _buildPhCard(data),
+                    ],
+                  ),
+                  loading: () => const Padding(
+                    padding: EdgeInsets.only(top: 80),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (err, _) => Padding(
+                    padding: const EdgeInsets.only(top: 80),
+                    child: Center(child: Text('Error: $err')),
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async => ref.refresh(sensorDataProvider),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+    );
+  }
+
+  // ────────────────────────────────────────────
+  //  TOP BAR
+  // ────────────────────────────────────────────
+  Widget _buildTopBar() {
+    return Container(
+      color: _bgGrey,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             children: [
-              _buildConnectionStatus(),
-              const SizedBox(height: 16),
-              sensorAsync.when(
-                data: (data) => _buildMoistureCard(data),
-                loading: () => const Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
-                  elevation: 4,
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Back button
+                  GestureDetector(
+                    onTap: () => Navigator.maybePop(context),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.chevron_left, color: Colors.black87),
+                    ),
                   ),
-                ),
-                error: (err, stack) => Card(
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text('Error: $err'),
-                  ),
+                  // Bell
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationPage(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Update 5 Detik yang lalu',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
                 ),
               ),
-              const SizedBox(height: 16),
-              sensorAsync.when(
-                data: (data) => _buildPhCard(data),
-                loading: () => const Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
-                  elevation: 4,
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-                error: (err, stack) => Card(
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text('Error: $err'),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 2),
               const Text(
-                'Riwayat Sensor Terbaru',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                'Monitoring',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF8B6B54),
+                ),
               ),
-              const SizedBox(height: 12),
-              historyAsync.when(
-                data: (history) => _buildHistoryList(history),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Text('Gagal memuat riwayat: $err'),
+              Text(
+                'WormGuard',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[500],
+                  letterSpacing: 0.5,
+                ),
               ),
+              const SizedBox(height: 8),
             ],
           ),
         ),
@@ -91,263 +162,378 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
     );
   }
 
-  Widget _buildConnectionStatus() {
+  // ────────────────────────────────────────────
+  //  SOIL MOISTURE CARD
+  // ────────────────────────────────────────────
+  Widget _buildSoilMoistureCard(SensorData data) {
+    final moisture = data.soilMoisture;
+    final status = data.moistureStatus;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Title bar
+          _cardTitleBar('Soil Moisture'),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+            child: Row(
+              children: [
+                // Donut chart
+                SizedBox(
+                  width: 130,
+                  height: 130,
+                  child: CustomPaint(
+                    painter: _DonutChartPainter(moisture),
+                    child: Center(
+                      child: Text(
+                        '${moisture.toStringAsFixed(0)}%',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF44824F),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 20),
+
+                // Legend + badge
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _legendItem(
+                        color: Colors.red[400]!,
+                        icon: Icons.cancel_outlined,
+                        label: 'Kering',
+                      ),
+                      const SizedBox(height: 10),
+                      _legendItem(
+                        color: _green,
+                        icon: Icons.check_circle_outline,
+                        label: 'Normal',
+                      ),
+                      const SizedBox(height: 14),
+                      _statusBadge(status),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Warning if needed
+          if (moisture < 40)
+            _warningBanner('Kelembaban terlalu rendah!'),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────
+  //  WATER PH CARD
+  // ────────────────────────────────────────────
+  Widget _buildPhCard(SensorData data) {
+    final ph = data.ph;
+    final status = data.phStatus;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _cardTitleBar('Water Ph'),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+            child: Column(
+              children: [
+                // pH gradient bar with indicator
+                SizedBox(
+                  height: 64,
+                  child: CustomPaint(
+                    painter: _PhGradientBarPainter(ph),
+                    size: const Size(double.infinity, 64),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Status badge
+                _statusBadge(status),
+
+                const SizedBox(height: 16),
+
+                // Legend row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _legendItem(
+                      color: Colors.red,
+                      icon: Icons.cancel_outlined,
+                      label: 'Kering',
+                    ),
+                    _legendItem(
+                      color: _green,
+                      icon: Icons.check_circle_outline,
+                      label: 'Normal',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          if (ph < 6 || ph > 7.5)
+            _warningBanner('pH di luar rentang normal!'),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────
+  //  SHARED WIDGETS
+  // ────────────────────────────────────────────
+  Widget _cardTitleBar(String title) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Color(0xFF8B6B54), width: 2),
+        ),
+      ),
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF8B6B54),
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
+
+  Widget _legendItem({
+    required Color color,
+    required IconData icon,
+    required String label,
+  }) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: const BoxDecoration(
-            color: Colors.green,
-            shape: BoxShape.circle,
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
           ),
         ),
-        const SizedBox(width: 8),
-        const Text('Online', style: TextStyle(fontWeight: FontWeight.w500)),
       ],
     );
   }
 
-  Widget _buildMoistureCard(SensorData data) {
-    final moisture = data.soilMoisture;
-    final status = data.moistureStatus;
-    Color statusColor;
-    if (status == 'Kering') statusColor = Colors.orange;
-    else if (status == 'Normal') statusColor = Colors.green;
-    else statusColor = Colors.blue;
-
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Kelembaban Tanah',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(status,
-                      style: TextStyle(color: statusColor, fontWeight: FontWeight.w600)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: moisture / 100,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-              minHeight: 20,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            const SizedBox(height: 8),
-            Text('${moisture.toStringAsFixed(1)}%',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('0%'),
-                Text('100%', style: TextStyle(color: Colors.grey[600])),
-              ],
-            ),
-            if (moisture < 40)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.warning, color: Colors.red, size: 20),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text('Peringatan: Kelembaban terlalu rendah!',
-                            style: TextStyle(color: Colors.red)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
+  Widget _statusBadge(String status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF44824F),
+        borderRadius: BorderRadius.circular(20),
       ),
-    );
-  }
-
-  Widget _buildPhCard(SensorData data) {
-    final ph = data.ph;
-    final status = data.phStatus;
-    Color statusColor;
-    if (status == 'Asam') statusColor = Colors.red;
-    else if (status == 'Netral') statusColor = Colors.green;
-    else statusColor = Colors.purple;
-
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('pH Air', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(status,
-                      style: TextStyle(color: statusColor, fontWeight: FontWeight.w600)),
-                ),
-              ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            status,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
-            const SizedBox(height: 20),
-            Center(
-              child: SizedBox(
-                height: 100,
-                child: CustomPaint(
-                  painter: _PhBarPainter(ph),
-                  size: const Size(double.infinity, 100),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text('pH: ${ph.toStringAsFixed(1)}',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
-            if (ph < 6 || ph > 7.5)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.warning, color: Colors.orange, size: 20),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text('Peringatan: pH di luar rentang normal!',
-                            style: TextStyle(color: Colors.orange)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHistoryList(List<Map<String, dynamic>> history) {
-    return Column(
-      children: history.map((item) {
-        final isSoil = item['type'] == 'soil';
-        final value = item['value'];
-        final time = item['timestamp'] as DateTime;
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: ListTile(
-            leading: Icon(
-              isSoil ? Icons.water_drop : Icons.science,
-              color: isSoil ? Colors.blue : Colors.purple,
-            ),
-            title: Text(isSoil ? 'Kelembaban: $value%' : 'pH: $value'),
-            subtitle:
-                Text('${time.hour}:${time.minute.toString().padLeft(2, '0')}'),
-            dense: true,
           ),
-        );
-      }).toList(),
+          const SizedBox(width: 4),
+          const Icon(Icons.check, color: Colors.white, size: 14),
+        ],
+      ),
     );
   }
+
+  Widget _warningBanner(String message) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.red.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Peringatan: $message',
+              style: const TextStyle(color: Colors.red, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 }
 
-// _PhBarPainter tetap sama
-class _PhBarPainter extends CustomPainter {
-  final double ph;
-  _PhBarPainter(this.ph);
+// ══════════════════════════════════════════════
+//  DONUT CHART PAINTER
+// ══════════════════════════════════════════════
+class _DonutChartPainter extends CustomPainter {
+  final double moisture;
+  _DonutChartPainter(this.moisture);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey[300]!
-      ..style = PaintingStyle.fill;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = math.min(size.width, size.height) / 2 - 8;
+    const strokeWidth = 18.0;
 
-    final barWidth = size.width * 0.8;
-    final barLeft = (size.width - barWidth) / 2;
-    final barHeight = 30.0;
-    final barTop = (size.height - barHeight) / 2;
+    final bgPaint = Paint()
+      ..color = Colors.grey[200]!
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(barLeft, barTop, barWidth, barHeight),
-        const Radius.circular(15),
-      ),
-      paint,
+    canvas.drawCircle(center, radius, bgPaint);
+
+    // Dry segment (red) — e.g. bottom 25%
+    final dryAngle = 2 * math.pi * ((100 - moisture) / 100);
+    final dryPaint = Paint()
+      ..color = Colors.red[400]!
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2 + 2 * math.pi * (moisture / 100),
+      dryAngle,
+      false,
+      dryPaint,
     );
 
-    double indicatorX = barLeft + (ph / 14) * barWidth;
-    Paint indicatorPaint = Paint()
-      ..color = _getPhColor(ph)
-      ..style = PaintingStyle.fill;
+    // Moist segment (green)
+    final moistAngle = 2 * math.pi * (moisture / 100);
+    final moistPaint = Paint()
+      ..color = const Color(0xFF44824F)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
 
-    canvas.drawCircle(
-      Offset(indicatorX, barTop + barHeight / 2),
-      15,
-      indicatorPaint,
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      moistAngle,
+      false,
+      moistPaint,
     );
-
-    final textPainter = TextPainter(
-      text: const TextSpan(
-        text: '0',
-        style: TextStyle(color: Colors.grey, fontSize: 12),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(barLeft - 5, barTop + barHeight + 5));
-
-    final textPainter2 = TextPainter(
-      text: const TextSpan(
-        text: '14',
-        style: TextStyle(color: Colors.grey, fontSize: 12),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter2.layout();
-    textPainter2.paint(canvas, Offset(barLeft + barWidth - 10, barTop + barHeight + 5));
-  }
-
-  Color _getPhColor(double ph) {
-    if (ph < 6) return Colors.red;
-    if (ph <= 7.5) return Colors.green;
-    return Colors.purple;
   }
 
   @override
-  bool shouldRepaint(covariant _PhBarPainter oldDelegate) {
-    return oldDelegate.ph != ph;
+  bool shouldRepaint(covariant _DonutChartPainter old) =>
+      old.moisture != moisture;
+}
+
+// ══════════════════════════════════════════════
+//  PH GRADIENT BAR PAINTER
+// ══════════════════════════════════════════════
+class _PhGradientBarPainter extends CustomPainter {
+  final double ph;
+  _PhGradientBarPainter(this.ph);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const barHeight = 22.0;
+    final barTop = size.height - barHeight - 20;
+    final barRect = Rect.fromLTWH(0, barTop, size.width, barHeight);
+    final rRect = RRect.fromRectAndRadius(barRect, const Radius.circular(11));
+
+    // Gradient: red → orange → yellow → green → teal
+    final gradient = LinearGradient(
+      colors: [
+        Colors.red,
+        Colors.orange,
+        Colors.yellow[700]!,
+        Colors.green,
+        Colors.teal,
+      ],
+    ).createShader(barRect);
+
+    final paint = Paint()..shader = gradient;
+    canvas.drawRRect(rRect, paint);
+
+    // Indicator triangle + line
+    final indicatorX = (ph / 14) * size.width;
+    final triangleTop = barTop - 18;
+
+    // Percentage label above triangle
+    final pct = ((ph / 14) * 100).toStringAsFixed(0);
+    final tp = TextPainter(
+      text: TextSpan(
+        text: '$pct%',
+        style: const TextStyle(
+          color: Color(0xFF44824F),
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(
+      canvas,
+      Offset(indicatorX - tp.width / 2, triangleTop - 16),
+    );
+
+    // Triangle
+    final path = Path()
+      ..moveTo(indicatorX, barTop - 2)
+      ..lineTo(indicatorX - 7, triangleTop)
+      ..lineTo(indicatorX + 7, triangleTop)
+      ..close();
+
+    canvas.drawPath(
+      path,
+      Paint()..color = const Color(0xFF44824F),
+    );
   }
+
+  @override
+  bool shouldRepaint(covariant _PhGradientBarPainter old) => old.ph != ph;
 }

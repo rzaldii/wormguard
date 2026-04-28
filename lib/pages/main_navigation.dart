@@ -3,6 +3,7 @@ import 'monitoring/monitoring_page.dart';
 import 'control/control_page.dart';
 import 'history/history_page.dart';
 import 'profile/profile_page.dart';
+import 'notification/notification_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
