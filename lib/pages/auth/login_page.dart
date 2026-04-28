@@ -57,7 +57,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset('assets/images/LOGO WormGuard.png', height: 150,),
+                Image.asset('assets/images/LOGO_WormGuard.png', height: 150,),
                 const SizedBox(height: 10,),
                 const Text(
                   'Selamat Datang!',
