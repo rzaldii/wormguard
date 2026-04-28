@@ -57,7 +57,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         children: [
           // ── Green circle — top, full width, down to above Email label ──
           Positioned(
-            top: -285,
+            top: -310,
             left: -120,
             right: -40,
             child: AspectRatio(
@@ -220,7 +220,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             // Login button
                             SizedBox(
                               width: double.infinity,
-                              height: 52,
+                              height: 55,
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _handleLogin,
                                 style: ElevatedButton.styleFrom(
@@ -235,7 +235,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 child: _isLoading
                                     ? const SizedBox(
                                         width: 22,
-                                        height: 22,
+                                        height: 40,
                                         child: CircularProgressIndicator(
                                           color: Colors.white,
                                           strokeWidth: 2.5,

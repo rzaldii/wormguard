@@ -14,8 +14,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   static const Color _brown = Color(0xFF8B6B54);
 
   bool _isEditing = false;
-  final _namaController = TextEditingController(text: 'Nama Lengkap');
-  final _usernameController = TextEditingController(text: 'Ussername');
+  final _namaController = TextEditingController(text: 'Bintang Carmenita');
+  final _usernameController = TextEditingController(text: 'Carmen');
 
   @override
   void dispose() {
@@ -100,7 +100,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.shield, color: Colors.white, size: 56),
+                      child: ClipOval(
+                        child: Image.asset(
+                          "assets/images/pp.png",
+                          fit: BoxFit.cover,
+                          width: 80,
+                          height: 80,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -132,13 +139,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   const SizedBox(height: 14),
 
                   // Username field
-                  _buildField(_usernameController, 'Ussername'),
+                  _buildField(_usernameController, 'Username'),
                   const SizedBox(height: 28),
 
                   // Edit / Simpan button
                   SizedBox(
                     width: 160,
-                    height: 48,
+                    height: 55,
                     child: ElevatedButton(
                       onPressed: () => setState(() => _isEditing = !_isEditing),
                       style: ElevatedButton.styleFrom(

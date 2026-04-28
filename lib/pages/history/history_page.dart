@@ -96,9 +96,9 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               height: 36,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 7),
                 itemCount: _tabs.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, __) => const SizedBox(width: 5),
                 itemBuilder: (_, i) {
                   final selected = i == _selectedTab;
                   return GestureDetector(
