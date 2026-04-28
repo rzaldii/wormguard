@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/history_provider.dart';
-import '../../widgets/custom_card.dart';
 
 class HistoryPage extends ConsumerWidget {
   const HistoryPage({super.key});
@@ -18,21 +17,21 @@ class HistoryPage extends ConsumerWidget {
           itemCount: history.length,
           itemBuilder: (context, index) {
             final item = history[index];
-            return CustomCard(
+            return Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: ListTile(
                 leading: Icon(
                   item.type == 'soil' ? Icons.water_drop : Icons.science,
                   color: item.type == 'soil' ? Colors.blue : Colors.purple,
                 ),
                 title: Text(
-                  item.type == 'soil' 
-                      ? 'Kelembaban: ${item.value.toStringAsFixed(1)}%' 
+                  item.type == 'soil'
+                      ? 'Kelembaban: ${item.value.toStringAsFixed(1)}%'
                       : 'pH: ${item.value.toStringAsFixed(1)}',
                 ),
                 subtitle: Text('${item.timestamp.hour}:${item.timestamp.minute}'),
-                trailing: Text(
-                  '${item.timestamp.day}/${item.timestamp.month}',
-                ),
+                trailing: Text('${item.timestamp.day}/${item.timestamp.month}'),
               ),
             );
           },

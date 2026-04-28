@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../pages/monitoring/monitoring_page.dart';
-import '../pages/control/control_page.dart';
-import '../pages/history/history_page.dart';
-import '../pages/profile/profile_page.dart';
+import 'monitoring/monitoring_page.dart';
+import 'control/control_page.dart';
+import 'history/history_page.dart';
+import 'profile/profile_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
