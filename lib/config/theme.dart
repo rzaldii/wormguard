@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static final lightTheme = ThemeData(
-    primaryColor: const Color(0xFF4CAF50),
-    scaffoldBackgroundColor: const Color(0xFFF9F9F9),
+    primaryColor: const Color.fromARGB(255, 68, 130, 79),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 234, 234, 234),
     // cardTheme dihilangkan
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF4CAF50),
+      backgroundColor: Color.fromARGB(255, 68, 130, 79),
       foregroundColor: Colors.white,
       elevation: 0,
     ),
@@ -17,7 +17,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: const Color.fromARGB(255, 68, 130, 79),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(vertical: 16),

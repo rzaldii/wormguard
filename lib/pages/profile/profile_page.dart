@@ -20,7 +20,7 @@ class ProfilePage extends ConsumerWidget {
               children: [
                 const CircleAvatar(
                   radius: 40,
-                  backgroundColor: Color(0xFF4CAF50),
+                  backgroundColor: Color.fromARGB(255, 68, 130, 79),
                   child: Icon(Icons.person, size: 40, color: Colors.white),
                 ),
                 const SizedBox(height: 16),

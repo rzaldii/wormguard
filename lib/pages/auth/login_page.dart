@@ -53,11 +53,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         children: [
           // Header dengan background hijau gelap
           Padding(
-            padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
+            padding: const EdgeInsets.fromLTRB(28, 20, 28, 28),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset('assets/images/LOGO WormGuard.png', width: 150),
+                Image.asset('assets/images/LOGO WormGuard.png', height: 150,),
+                const SizedBox(height: 10,),
                 const Text(
                   'Selamat Datang!',
                   style: TextStyle(
@@ -66,7 +67,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 2),
                 Text(
                   'Silahkan login terlebih dahulu',
                   style: TextStyle(
@@ -77,7 +78,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           // Form Login
           Expanded(
             child: Container(
