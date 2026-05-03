@@ -16,213 +16,40 @@ class _ControlPageState extends ConsumerState<ControlPage> {
   static const Color _bgGrey = Color(0xFFF0F0F0);
   static const Color _blue = Color(0xFF2196F3);
 
-  void _showEditDialog() {
+  // ✅ Tambahan: update langsung + snackbar
+  void _updatePump(bool status) {
     final control = ref.read(controlProvider);
-    bool tempStatus = control.pumpStatus;
 
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withOpacity(0.4),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setDialogState) {
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ── Edit card ──
-                  Container(
-                    decoration: BoxDecoration(
-                      color: _bgGrey,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Edit Status Penyemprotan Air',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        const Text(
-                          'Status Alat',
-                          style: TextStyle(fontSize: 13, color: Colors.black54),
-                        ),
-                        const SizedBox(height: 8),
-                        // ON / OFF toggle
-                        Container(
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setDialogState(() => tempStatus = true),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    decoration: BoxDecoration(
-                                      color: tempStatus ? _blue : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'ON',
-                                      style: TextStyle(
-                                        color: tempStatus ? Colors.white : Colors.black54,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setDialogState(() => tempStatus = false),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    decoration: BoxDecoration(
-                                      color: !tempStatus ? _blue : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'OFF',
-                                      style: TextStyle(
-                                        color: !tempStatus ? Colors.white : Colors.black54,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Simpan button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              ref.read(controlProvider.notifier).state =
-                                  ControlModel(
-                                isAuto: control.isAuto,
-                                pumpStatus: tempStatus,
-                              );
-                              Navigator.of(ctx).pop();
-                              _showSuccessDialog();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _brown,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Simpan Perubahan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+    ref.read(controlProvider.notifier).state = ControlModel(
+      isAuto: control.isAuto,
+      pumpStatus: status,
+    );
+
+    final message = status ? 'Otomatisasi Berhasil Diaktifkan' : 'Otomatisasi Berhasil Dinonaktifkan';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.white,
+        behavior: SnackBarBehavior.floating,
+        content: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Peringatan: $message',
+                style: const TextStyle(color: Colors.red, fontSize: 13),
               ),
-            );
-          },
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withOpacity(0.4),
-      builder: (ctx) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Container(
-            decoration: BoxDecoration(
-              color: _bgGrey,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: const BoxDecoration(
-                        color: _green,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.check, color: Colors.white, size: 16),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Status alat berhasil diperbarui',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: _green,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _brown,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'OK',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void _showEditDialog() {}
+
+  // void _showSuccessDialog() {}
 
   @override
   Widget build(BuildContext context) {
@@ -233,38 +60,38 @@ class _ControlPageState extends ConsumerState<ControlPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Top bar ──
+            // Top bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.maybePop(context),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.chevron_left, color: Colors.black87),
-                    ),
-                  ),
-                ],
+                // children: [
+                //   GestureDetector(
+                //     onTap: () => Navigator.maybePop(context),
+                //     child: Container(
+                //       width: 40,
+                //       height: 40,
+                //       decoration: BoxDecoration(
+                //         color: Colors.white,
+                //         shape: BoxShape.circle,
+                //         boxShadow: [
+                //           BoxShadow(
+                //             color: Colors.black.withOpacity(0.08),
+                //             blurRadius: 6,
+                //             offset: const Offset(0, 2),
+                //           ),
+                //         ],
+                //       ),
+                //       child: const Icon(Icons.chevron_left, color: Colors.black87),
+                //     ),
+                //   ),
+                // ],
               ),
             ),
 
-            // ── Title ──
             const SizedBox(height: 8),
+
             const Text(
-              'Kontrol Alat',
+              'Kontrol Otomatisasi',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -282,7 +109,7 @@ class _ControlPageState extends ConsumerState<ControlPage> {
 
             const SizedBox(height: 24),
 
-            // ── Main card ──
+            // Main card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
@@ -299,9 +126,9 @@ class _ControlPageState extends ConsumerState<ControlPage> {
                 ),
                 child: Column(
                   children: [
-                    // Status pompa row
+                    // Status Pompa (sekarang toggle langsung)
                     GestureDetector(
-                      onTap: _showEditDialog,
+                      onTap: () => _updatePump(!control.pumpStatus),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -323,7 +150,7 @@ class _ControlPageState extends ConsumerState<ControlPage> {
                                         size: 14, color: Colors.grey[500]),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Status Pompa',
+                                      'Status Otomatisasi',
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.grey[500],
@@ -365,7 +192,7 @@ class _ControlPageState extends ConsumerState<ControlPage> {
                                 ),
                               ],
                             ),
-                            // Pump icon
+
                             Container(
                               width: 72,
                               height: 56,
@@ -404,14 +231,14 @@ class _ControlPageState extends ConsumerState<ControlPage> {
                       ),
                     ),
 
-                    // Kontrol Pompa section
+                    // Kontrol Pompa
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Kontrol Pompa',
+                            'Kontrol Otomatisasi',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -419,6 +246,7 @@ class _ControlPageState extends ConsumerState<ControlPage> {
                             ),
                           ),
                           const SizedBox(height: 12),
+
                           Container(
                             height: 44,
                             decoration: BoxDecoration(
@@ -429,10 +257,9 @@ class _ControlPageState extends ConsumerState<ControlPage> {
                               children: [
                                 Expanded(
                                   child: GestureDetector(
-                                    onTap: _showEditDialog,
+                                    onTap: () => _updatePump(true),
                                     child: AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 200),
+                                      duration: const Duration(milliseconds: 200),
                                       decoration: BoxDecoration(
                                         color: control.pumpStatus
                                             ? _blue
@@ -455,10 +282,9 @@ class _ControlPageState extends ConsumerState<ControlPage> {
                                 ),
                                 Expanded(
                                   child: GestureDetector(
-                                    onTap: _showEditDialog,
+                                    onTap: () => _updatePump(false),
                                     child: AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 200),
+                                      duration: const Duration(milliseconds: 200),
                                       decoration: BoxDecoration(
                                         color: !control.pumpStatus
                                             ? _blue

@@ -65,44 +65,35 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
   //  TOP BAR
   // ────────────────────────────────────────────
   Widget _buildTopBar() {
-    return Container(
-      color: _bgGrey,
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Back button
-                  GestureDetector(
-                    onTap: () => Navigator.maybePop(context),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.chevron_left, color: Colors.black87),
-                    ),
-                  ),
-                  // Bell
-                  InkWell(
+  return Container(
+    color: _bgGrey,
+    child: SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+              ),
+            ),
+
+            const SizedBox(height: 8),
+            
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: InkWell(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const NotificationPage(),
+                          builder: (context) =>
+                              const NotificationPage(),
                         ),
                       );
                     },
@@ -126,41 +117,52 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                         color: Colors.black87,
                       ),
                     ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Update 5 Detik yang lalu',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[500],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              const Text(
-                'Monitoring',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF8B6B54),
+
+                
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Monitoring',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF8B6B54),
+                      ),
+                    ),
+                    Text(
+                      'WormGuard',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[500],
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
+              ],
+            ),
+
+            const SizedBox(height: 6),
+
+            // Update text
+            Text(
+              'Update 5 Detik yang lalu',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[500],
               ),
-              Text(
-                'WormGuard',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[500],
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
+            ),
+
+            const SizedBox(height: 8),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ────────────────────────────────────────────
   //  SOIL MOISTURE CARD
@@ -202,7 +204,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF44824F),
+                          color: Color(0xFF8B6B54),
                         ),
                       ),
                     ),
@@ -294,12 +296,12 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                     _legendItem(
                       color: Colors.red,
                       icon: Icons.cancel_outlined,
-                      label: 'Kering',
+                      label: 'Asam',
                     ),
                     _legendItem(
                       color: _green,
                       icon: Icons.check_circle_outline,
-                      label: 'Normal',
+                      label: 'Basa',
                     ),
                   ],
                 ),
@@ -489,10 +491,13 @@ class _PhGradientBarPainter extends CustomPainter {
     final gradient = LinearGradient(
       colors: [
         Colors.red,
-        Colors.orange,
+        // Colors.orange,
         Colors.yellow[700]!,
         Colors.green,
-        Colors.teal,
+        // Colors.teal,
+        Colors.blue,
+        const Color.fromARGB(255, 114, 39, 176),
+
       ],
     ).createShader(barRect);
 

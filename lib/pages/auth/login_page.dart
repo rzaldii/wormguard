@@ -12,14 +12,14 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -29,7 +29,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       setState(() => _isLoading = true);
       await ref
           .read(authProvider.notifier)
-          .login(_emailController.text.trim(), _passwordController.text);
+          .login(_usernameController.text, _passwordController.text);
       setState(() => _isLoading = false);
 
       final authState = ref.read(authProvider);
@@ -55,7 +55,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // ── Green circle — top, full width, down to above Email label ──
+          // ── Green circle — top, full width, down to above username label ──
           Positioned(
             top: -310,
             left: -120,
@@ -111,9 +111,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Email field
+                            // Username field
                             const Text(
-                              'Email',
+                              'Username',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -122,8 +122,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                             const SizedBox(height: 8),
                             TextFormField(
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
+                              controller: _usernameController,
                               style: const TextStyle(fontSize: 15),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(
@@ -152,7 +151,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 filled: true,
                                 fillColor: Colors.white,
                               ),
-                              validator: Validators.email,
                             ),
 
                             const SizedBox(height: 20),

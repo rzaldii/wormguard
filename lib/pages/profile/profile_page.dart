@@ -50,7 +50,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         child: Container(
                           decoration: const BoxDecoration(
                             color: _green,
-                            shape: BoxShape.circle,
+                            // shape: BoxShape.circle,
                           ),
                         ),
                       ),
