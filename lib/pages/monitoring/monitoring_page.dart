@@ -148,13 +148,13 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
             const SizedBox(height: 6),
 
             // Update text
-            Text(
-              'Update 5 Detik yang lalu',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
-              ),
-            ),
+            // Text(
+            //   'Update 5 Detik yang lalu',
+            //   style: TextStyle(
+            //     fontSize: 12,
+            //     color: Colors.grey[500],
+            //   ),
+            // ),
 
             const SizedBox(height: 8),
           ],

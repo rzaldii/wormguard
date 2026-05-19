@@ -151,6 +151,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 filled: true,
                                 fillColor: Colors.white,
                               ),
+                              validator: Validators.username,
                             ),
 
                             const SizedBox(height: 20),

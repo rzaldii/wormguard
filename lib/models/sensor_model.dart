@@ -2,37 +2,39 @@ class SensorData {
   final String id;
   final double soilMoisture;
   final double ph;
-  final DateTime timestamp;
+  final bool pump;
+  final int timestamp;
 
   SensorData({
     required this.id,
     required this.soilMoisture,
     required this.ph,
+    required this.pump,
     required this.timestamp,
   });
 
-  factory SensorData.fromMap(Map<String, dynamic> map, String id) {
+  factory SensorData.fromMap(Map<dynamic, dynamic> map, String id) {
     return SensorData(
       id: id,
-      soilMoisture: (map['soil_moisture'] ?? 0).toDouble(),
+      soilMoisture: (map['soil'] ?? 0).toDouble(),
       ph: (map['ph'] ?? 7).toDouble(),
-      timestamp: map['timestamp'] is DateTime 
-          ? map['timestamp'] 
-          : DateTime.parse(map['timestamp'].toString()),
+      pump: map['pump'] ?? false,
+      timestamp: map['timestamp'] ?? 0,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'soil_moisture': soilMoisture,
+      'soil': soilMoisture,
       'ph': ph,
-      'timestamp': timestamp.toIso8601String(),
+      'pump': pump,
+      'timestamp': timestamp,
     };
   }
 
   String get moistureStatus {
-    if (soilMoisture < 40) return 'Kering';
-    if (soilMoisture <= 70) return 'Normal';
+    if (soilMoisture < 50) return 'Kering';
+    if (soilMoisture <= 60) return 'Normal';
     return 'Basah';
   }
 
@@ -40,5 +42,9 @@ class SensorData {
     if (ph < 6) return 'Asam';
     if (ph <= 7.5) return 'Netral';
     return 'Basa';
+  }
+
+  String get pumpStatus {
+    return pump ? 'ON' : 'OFF';
   }
 }
