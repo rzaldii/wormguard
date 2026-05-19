@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../providers/history_provider.dart';
+import '../../models/history_model.dart';
 
 class HistoryPage extends ConsumerStatefulWidget {
   const HistoryPage({super.key});
@@ -12,9 +14,15 @@ class HistoryPage extends ConsumerStatefulWidget {
 class _HistoryPageState extends ConsumerState<HistoryPage> {
   static const Color _brown = Color(0xFF8B6B54);
   static const Color _bgGrey = Color(0xFFF0F0F0);
+  static const Color _green = Color(0xFF44824F);
 
   int _selectedTab = 0;
-  final List<String> _tabs = ['Penyemprotan air', 'Kelembaban tanah', 'pH Air'];
+
+  final List<String> _tabs = [
+    'Penyemprotan air',
+    'Kelembaban tanah',
+    'pH Air',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -25,53 +33,13 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Top bar ──
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.maybePop(context),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.chevron_left, color: Colors.black87),
-                    ),
-                  ),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.inventory_2_outlined, color: Colors.black87, size: 20),
-                  ),
-                ],
-              ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(),
             ),
 
-            // ── Title ──
             const SizedBox(height: 12),
+
             const Text(
               'Riwayat',
               style: TextStyle(
@@ -80,6 +48,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                 color: _brown,
               ),
             ),
+
             Text(
               'WormGuard',
               style: TextStyle(
@@ -91,7 +60,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
             const SizedBox(height: 16),
 
-            // ── Tab filter ──
             SizedBox(
               height: 36,
               child: ListView.separated(
@@ -101,8 +69,13 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                 separatorBuilder: (_, __) => const SizedBox(width: 5),
                 itemBuilder: (_, i) {
                   final selected = i == _selectedTab;
+
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedTab = i),
+                    onTap: () {
+                      setState(() {
+                        _selectedTab = i;
+                      });
+                    },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -130,13 +103,13 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
             const SizedBox(height: 16),
 
-            // ── Content ──
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: historyAsync.when(
                   data: (history) {
                     final filtered = _filterHistory(history);
+
                     return Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -159,24 +132,40 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                                 color: Colors.grey[100],
                                 height: 1,
                               ),
-                              itemBuilder: (_, i) => _buildItem(filtered[i]),
+                              itemBuilder: (_, i) {
+                                return _buildItem(filtered[i]);
+                              },
                             ),
                     );
                   },
-                  loading: () => Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                  error: (err, _) => Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Center(child: Text('Error: $err')),
-                  ),
+                  loading: () {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  },
+                  error: (err, _) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            'Error: $err',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -188,50 +177,52 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     );
   }
 
-  List<dynamic> _filterHistory(List<dynamic> history) {
-    switch (_selectedTab) {
-      case 0: // Penyemprotan air
-        return history.where((e) => e.type == 'pump').toList();
-      case 1: // Kelembaban tanah
-        return history.where((e) => e.type == 'soil').toList();
-      case 2: // pH Air
-        return history.where((e) => e.type == 'ph').toList();
-      default:
-        return history;
-    }
+  List<HistoryModel> _filterHistory(List<HistoryModel> history) {
+    // Semua tab tetap menampilkan data penyemprotan.
+    // Bedanya nanti isi item berubah sesuai tab yang dipilih.
+    return history.where((e) => e.type == 'spray').toList();
   }
 
-  Widget _buildItem(dynamic item) {
-    final isSoil = item.type == 'soil';
-    final isPh = item.type == 'ph';
-    final isPump = item.type == 'pump';
+  Widget _buildItem(HistoryModel item) {
+    final time = item.timestamp;
+
+    final timeStr =
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+
+    final dateStr =
+        '${time.day.toString().padLeft(2, '0')}/${time.month.toString().padLeft(2, '0')}/${time.year}';
+
+    final durationSecond = (item.durationMs / 1000).toStringAsFixed(0);
 
     Color iconColor;
     IconData iconData;
-    String label;
+    String title;
+    String subtitle;
 
-    if (isSoil) {
+    if (_selectedTab == 0) {
+      iconColor = _green;
+      iconData = Icons.power_settings_new_rounded;
+      title = 'Penyemprotan air';
+      subtitle =
+          'Dilakukan pada $dateStr pukul $timeStr\nDurasi: $durationSecond detik';
+    } else if (_selectedTab == 1) {
       iconColor = Colors.blue;
       iconData = Icons.water_drop_outlined;
-      label = 'Kelembaban: ${item.value.toStringAsFixed(1)}%';
-    } else if (isPh) {
+      title = 'Kelembaban tanah';
+      subtitle =
+          'Sebelum: ${item.beforeSoil.toStringAsFixed(1)}%\nSesudah: ${item.afterSoil.toStringAsFixed(1)}%';
+    } else {
       iconColor = Colors.purple;
       iconData = Icons.science_outlined;
-      label = 'pH: ${item.value.toStringAsFixed(1)}';
-    } else {
-      iconColor = const Color(0xFF44824F);
-      iconData = Icons.power_settings_new_rounded;
-      label = 'Pompa: ${item.value == 1 ? "ON" : "OFF"}';
+      title = 'pH Air';
+      subtitle =
+          'Sebelum: ${item.beforePh.toStringAsFixed(2)}\nSesudah: ${item.afterPh.toStringAsFixed(2)}';
     }
-
-    final time = item.timestamp as DateTime;
-    final timeStr =
-        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-    final dateStr = '${time.day}/${time.month}/${time.year}';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 40,
@@ -240,19 +231,42 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               color: iconColor.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(iconData, color: iconColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
+            child: Icon(
+              iconData,
+              color: iconColor,
+              size: 20,
             ),
           ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -266,7 +280,10 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               ),
               Text(
                 dateStr,
-                style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey[400],
+                ),
               ),
             ],
           ),
@@ -280,11 +297,18 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.history, size: 48, color: Colors.grey[300]),
+          Icon(
+            Icons.history,
+            size: 48,
+            color: Colors.grey[300],
+          ),
           const SizedBox(height: 8),
           Text(
             'Belum ada riwayat',
-            style: TextStyle(color: Colors.grey[400], fontSize: 14),
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 14,
+            ),
           ),
         ],
       ),

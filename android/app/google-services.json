@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "717099024349",
+    "firebase_url": "https://wormguard-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "wormguard",
+    "storage_bucket": "wormguard.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:717099024349:android:b2efc8dc2b4f39a9e6c034",
+        "android_client_info": {
+          "package_name": "com.example.listview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXGTv30wun84JC4NsA9MrmrD3TPq9PI7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

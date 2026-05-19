@@ -1,20 +1,23 @@
 class ControlModel {
   final bool isAuto;
-  final bool pumpStatus; // true = ON
+  final int updatedAt;
 
-  ControlModel({required this.isAuto, required this.pumpStatus});
+  ControlModel({
+    required this.isAuto,
+    required this.updatedAt,
+  });
 
-  factory ControlModel.fromMap(Map<String, dynamic> map) {
+  factory ControlModel.fromMap(Map<dynamic, dynamic> map) {
     return ControlModel(
-      isAuto: map['is_auto'] ?? false,
-      pumpStatus: map['pump_status'] == 'on',
+      isAuto: map['is_auto'] ?? true,
+      updatedAt: map['updated_at'] ?? 0,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'is_auto': isAuto,
-      'pump_status': pumpStatus ? 'on' : 'off',
+      'updated_at': updatedAt,
     };
   }
 }
