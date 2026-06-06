@@ -33,7 +33,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       setState(() => _isLoading = false);
 
       final authState = ref.read(authProvider);
-      if (authState.hasValue && authState.value == true) {
+
+      if (authState.hasValue && authState.value != null) {
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');
         }
